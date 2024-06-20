@@ -68,7 +68,7 @@
 
     Two or more database write operation
 
-## Types of Errors : 
+## Types of Errors :
 
 ## `Operational Error :`
 
@@ -90,5 +90,16 @@
 
 Operational error & Programmatical error can handle in express application using error in express framework
 
-`1. Unhandled Rejection (Asynchronous code)`
-`2. Uncaught Exception (Synchronous code)`
+### `1. Unhandled Rejection (Asynchronous code)`
+
+```js
+server.close(() => {
+  process.exit(1);
+});
+```
+
+### `2. Uncaught Exception (Synchronous code)`
+
+```js
+process.exit(1);
+```
