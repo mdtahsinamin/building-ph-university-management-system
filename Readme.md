@@ -103,3 +103,137 @@ server.close(() => {
 ```js
 process.exit(1);
 ```
+
+## How to do raw searching
+
+Data comes from req.query
+searchTerm -> Partial Match & Filter term -> Exact Match
+
+### `Partial Match`
+
+For Partial Match we use regex. we need finalize the field which fields, we ues searching
+
+```js
+  let searchTerm = '';
+  const queryObj = { ...query };
+
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+
+  const studentSearchableFields: string[] = [
+    'email',
+    'name.firstName',
+    'presentAddress',
+  ];
+
+  // first changing, searchTerm
+  const searchQuery = Student.find({
+    $or: studentSearchableFields.map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' }, // []
+    })),
+  });
+
+```
+
+### `Exact Match`
+
+for exact match we need specific fields, so in req.query object we need to remove different fields like searchTerm , page, limit, sort etc. we use changing the queries.
+
+```js
+// filtering for extract match
+const excludeFields = ['searchTerm', 'sort', 'limit'];
+
+excludeFields.forEach((elt) => delete queryObj[elt]);
+
+// second changing
+const filterQuery = searchQuery
+  .find(queryObj)
+  .populate('admissionSemester')
+  .populate({
+    path: 'academicDepartment',
+    populate: {
+      path: 'academicFaculty',
+    },
+  });
+```
+
+### `sort the document`
+
+```js
+// for sort
+  let sort = '-createdAt';
+
+  if (query.sort) {
+    sort = query.sort as string;
+  }
+
+  // third changing
+  const sortQuery = filterQuery.sort(sort);
+```
+
+### `limit the document`
+
+```js
+
+ let limit = 1;
+
+  if (query.limit) {
+    limit = query.limit as number;
+  }
+
+  const limitQuery = await sortQuery.limit(limit);
+
+```
+
+### `Pagination`
+
+    Formula: Determine how many documents to show limit and how many to skip = (page - 1) * limit
+
+Example:
+
+- limit = 10, page = 1, skip = 0 [show 10 document on each page]
+- limit = 10, page = 2, skip = 10 [show 10 document on each page]
+- limit = 10, page = 3, skip = 20 [show 10 document on each page]
+
+Calculation for Skip:
+
+- limit = 10, page = 1, skip = (1 - 1) \* 10
+- limit = 10, page = 2, skip = (2 - 1) \* 10
+- limit = 10, page = 3, skip = (3 - 1) \* 10
+- so, skip = (page - 1) \* limit
+
+```js
+// pagination
+let page = 1;
+let limit = 1;
+
+let skip = 0;
+
+if (query.limit) {
+  limit = Number(query.limit);
+}
+
+if (query.page) {
+  page = Number(query.page);
+  skip = (page - 1) * limit;
+}
+
+const paginateQuery = sortQuery.skip(skip);
+```
+
+### Field limiting
+
+```js
+
+ // field limiting
+
+  let fields = '-__v';
+
+  if (query.fields) {
+    fields = (query.fields as string).split(',').join(' ');
+  }
+
+  const fieldQuery = await limitQuery.select(fields);
+
+```
