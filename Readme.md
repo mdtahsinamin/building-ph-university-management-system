@@ -70,7 +70,7 @@
 
 ## Types of Errors :
 
-## `Operational Error :`
+### `Operational Error :`
 
     Errors that we can predict will happen in future.
 
@@ -106,8 +106,7 @@ process.exit(1);
 
 ## How to do raw searching
 
-Data comes from req.query
-searchTerm -> Partial Match & Filter term -> Exact Match
+  Data comes from req.query (searchTerm -> Partial Match & Filter term -> Exact Match)
 
 ### `Partial Match`
 
