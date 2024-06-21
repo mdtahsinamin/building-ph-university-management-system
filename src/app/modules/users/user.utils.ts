@@ -19,7 +19,45 @@ const findLastStudentId = async () => {
     })
     .lean();
 
-  return lastStudent?.id ? lastStudent.id.substring(6) : undefined;
+  return lastStudent?.id ? lastStudent.id : undefined;
+};
+
+const findLastFacultyId = async () => {
+  const lastFacultyId = await User.findOne(
+    {
+      role: 'faculty',
+    },
+    {
+      id: 1,
+      _id: 0,
+    },
+  )
+    .sort({
+      createdAt: -1,
+    })
+    .lean();
+
+  // F-000
+
+  return lastFacultyId?.id ? lastFacultyId.id.substring(2) : undefined;
+};
+
+const findLastAdminId = async () => {
+  const lastAdminId = await User.findOne(
+    {
+      role: 'admin',
+    },
+    {
+      id: 1,
+      _id: 0,
+    },
+  )
+    .sort({
+      createdAt: -1,
+    })
+    .lean();
+
+  return lastAdminId?.id ? lastAdminId?.id.substring(2) : undefined;
 };
 
 // year semester 4 digit number
@@ -31,7 +69,7 @@ export const generateStudentId = async (payload: TAcademicSemester | null) => {
   let currentId = (0).toString();
 
   const lastStudentId = await findLastStudentId();
-  const lastSemesterCode = lastStudentId?.substring(4, 6); // 2030 010001
+  const lastSemesterCode = lastStudentId?.substring(4, 6); // 2030 01 0001
   const lastSemesterYear = lastStudentId?.substring(0, 4);
 
   if (
@@ -47,5 +85,38 @@ export const generateStudentId = async (payload: TAcademicSemester | null) => {
     .padStart(4, '0');
 
   incrementId = `${payload.year}${payload.code}${incrementId}`;
+  return incrementId;
+};
+
+export const generateFacultyId = async () => {
+  let currentId = (0).toString();
+
+  const lastFacultyId = await findLastFacultyId();
+
+  if (lastFacultyId) {
+    currentId = lastFacultyId; // F-0000
+  }
+
+  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
+
+  incrementId = `F-${incrementId}`;
+
+  return incrementId;
+};
+
+// generate admin Id
+export const generateAdminId = async () => {
+  let currentId = (0).toString();
+
+  const lastAdminId = await findLastAdminId();
+
+  if (lastAdminId) {
+    currentId = lastAdminId;
+  }
+
+  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
+
+  incrementId = `A-${incrementId}`;
+
   return incrementId;
 };

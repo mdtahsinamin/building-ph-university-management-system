@@ -38,9 +38,8 @@ const userSchema = new Schema<TUser>(
 
 userSchema.pre('save', async function (next) {
   // hashing password and save into DB
-  const user = this; // doc
-  user.password = await bcrypt.hash(
-    user.password,
+  this.password = await bcrypt.hash(
+    this.password,
     Number(config.bcrypt_salt_rounds),
   );
   next();
