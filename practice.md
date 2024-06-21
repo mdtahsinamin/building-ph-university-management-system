@@ -16,7 +16,7 @@
 
 ## `Admin`
 
-    1. create a route for getting all Admin (/api/v1/faculties) GET
+    1. create a route for getting all Admin (/api/v1/admins) GET
     2. create a route for getting single Admin using self generate faculty id  (/api/v1/admins/:adminId) GET
     3. create a route for updating single Admin using self generated faculty id (/api/v1/admins/:adminId) PATCH
     4. create a route for deleting single Admin using self generated faculty Id (/api/v1/admins/:adminId) DELETE
