@@ -109,8 +109,10 @@ const deleteStudentFromBD = async (id: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to Delete student');
     }
 
+    const userId = deletedStudent.user;
+
     const deletedUser = await User.findOneAndUpdate(
-      { id },
+      { id: userId },
       { isDeleted: true },
       { new: true, session },
     );
