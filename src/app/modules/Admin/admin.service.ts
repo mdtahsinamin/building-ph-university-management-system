@@ -20,13 +20,13 @@ const getAllAdminsFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
-const getSingleAdminFromDB = async (adminId: string) => {
-  const result = await Admin.findOne({ id: adminId });
+const getSingleAdminFromDB = async (id: string) => {
+  const result = await Admin.findById({ id });
 
   return result;
 };
 
-const updateAdminFromDB = async (adminId: string, payload: Partial<TAdmin>) => {
+const updateAdminFromDB = async (id: string, payload: Partial<TAdmin>) => {
   const { name, ...remainingFacultyData } = payload;
 
   const modifiedUpdateData: Record<string, unknown> = {
@@ -39,27 +39,23 @@ const updateAdminFromDB = async (adminId: string, payload: Partial<TAdmin>) => {
     }
   }
 
-  const result = await Admin.findOneAndUpdate(
-    { id: adminId },
-    modifiedUpdateData,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await Admin.findByIdAndUpdate({ id }, modifiedUpdateData, {
+    new: true,
+    runValidators: true,
+  });
 
   return result;
 };
 
 /* Delete */
-const deleteAdminFromBD = async (adminId: string) => {
+const deleteAdminFromBD = async (id: string) => {
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    const deletedAdmin = await Admin.findOneAndUpdate(
-      { id: adminId },
+    const deletedAdmin = await Admin.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -73,8 +69,8 @@ const deleteAdminFromBD = async (adminId: string) => {
 
     const userId = deletedAdmin.user;
 
-    const deletedUser = await User.findOneAndUpdate(
-      { id: userId },
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );
